@@ -247,7 +247,11 @@ def do_sortmuz(src, output):
             msg = '[cp]    "{}" -> "{}"'.format(file, dst)
 
             print(msg)
-            shutil.copytree(file, dst)
+
+            if os.path.isdir(file):
+                shutil.copytree(file, dst)
+            else:
+                shutil.copyfile(file, dst)
 
 
 def run():
