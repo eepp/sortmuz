@@ -45,13 +45,13 @@ def _parse_args():
 
     # validate source directory
     if not os.path.isdir(args.src):
-        print('Error: source is not an existing directory',
+        print('error: source is not an existing directory',
               file=sys.stderr)
         sys.exit(1)
 
     # validate output directory
     if not os.path.isdir(args.output):
-        print('Error: output is not an existing directory',
+        print('error: output is not an existing directory',
               file=sys.stderr)
         sys.exit(1)
 
@@ -199,15 +199,15 @@ def do_sortmuz(src, output):
         user_year = year
 
     if len(user_artist) == 0:
-        print('Error: invalid artist name', file=sys.stderr)
+        print('error: invalid artist name', file=sys.stderr)
         sys.exit(1)
 
     if len(user_album) == 0:
-        print('Error: invalid album name', file=sys.stderr)
+        print('error: invalid album name', file=sys.stderr)
         sys.exit(1)
 
     if len(user_year) == 0:
-        print('Error: invalid year', file=sys.stderr)
+        print('error: invalid year', file=sys.stderr)
         sys.exit(1)
 
     year_album = '{} {}'.format(user_year, user_album)
@@ -228,19 +228,34 @@ def do_sortmuz(src, output):
         print('')
 
     print('[mkdir] "{}"'.format(abs_album_dir))
-    os.makedirs(album_dir)
+
+    try:
+        os.makedirs(album_dir)
+    except Exception as e:
+        print('error: cannot create directory: ' + str(e), file=sys.stderr)
+        sys.exit(1)
 
     for file in muz_files:
         dst = os.path.join(abs_album_dir, os.path.basename(file))
         msg = '[cp]    "{}" -> "{}"'.format(file, dst)
 
         print(msg)
-        shutil.copyfile(file, dst)
+
+        try:
+            shutil.copyfile(file, dst)
+        except Exception as e:
+            print('error: cannot copy file: ' + str(e), file=sys.stderr)
+            sys.exit(1)
 
     if meta_files:
         meta_dir = os.path.join(abs_album_dir, '_')
         print('[mkdir] "{}"'.format(meta_dir))
-        os.makedirs(meta_dir)
+
+        try:
+            os.makedirs(meta_dir)
+        except Exception as e:
+            print('error: cannot create directory: ' + str(e), file=sys.stderr)
+            sys.exit(1)
 
         for file in meta_files:
             dst = os.path.join(meta_dir, os.path.basename(file))
@@ -248,10 +263,15 @@ def do_sortmuz(src, output):
 
             print(msg)
 
-            if os.path.isdir(file):
-                shutil.copytree(file, dst)
-            else:
-                shutil.copyfile(file, dst)
+            try:
+                if os.path.isdir(file):
+                    shutil.copytree(file, dst)
+                else:
+                    shutil.copyfile(file, dst)
+            except Exception as e:
+                print('error: cannot copy file/directory: ' + str(e),
+                      file=sys.stderr)
+                sys.exit(1)
 
 
 def run():
