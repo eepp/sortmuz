@@ -83,7 +83,7 @@ def _print_summary(src, output, muz_files, meta_files):
 
 
 def _collect_files(src):
-    exts = ['.mp3', '.mp4', '.flac']
+    exts = ['.mp3', '.m4a', '.flac']
     exclude_meta = ['.ds_store', 'desktop.ini', 'thumbs.db']
 
     muz_files = []
@@ -115,7 +115,6 @@ def _get_file_infos(file):
     year = ''
 
     if type(m_file) is mutagenx.mp3.MP3:
-
         if 'TPE1' in m_file:
             artist = m_file['TPE1'].text[0]
         elif 'TPE2' in m_file:
