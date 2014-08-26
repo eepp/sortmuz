@@ -20,6 +20,21 @@ Clone using Git and run `setup.py`:
 using
 -----
 
-See
+The purpose of sortmuz is to take a music album directory, usually filled
+with MP3/M4A/FLAC and some metadata files (album cover, log/cue files,
+etc.), and sort it in another music collection directory following
+this format:
+
+    root of collection/
+      <artist>/
+        <release year> <album>/
+          _/
+            <meta files>
+          <music files>
+
+It interactively asks the user to confirm/modify the guessed artist
+name, album name and album release year from audio files tags.
+
+More info:
 
     sortmuz --help
