@@ -27,6 +27,24 @@ import sys
 import os
 import shutil
 import sortmuz
+from termcolor import colored
+
+
+def _perror(msg, exit=True):
+    print(colored('Error: {}'.format(msg), 'red', attrs=['bold']),
+          file=sys.stderr)
+
+    if exit:
+        sys.exit(1)
+
+
+def _pwarning(msg):
+    print(colored('Warning: {}'.format(msg), 'yellow', attrs=['bold']),
+          file=sys.stderr)
+
+
+def _pinfo(msg):
+    print(colored('{}'.format(msg), 'blue'), file=sys.stderr)
 
 
 def _parse_args():
@@ -45,38 +63,38 @@ def _parse_args():
 
     # validate source directory
     if not os.path.isdir(args.src):
-        print('error: source is not an existing directory',
-              file=sys.stderr)
-        sys.exit(1)
+        _perror('source "{}" is not an existing directory'.format(args.src))
 
     # validate output directory
     if not os.path.isdir(args.output):
-        print('error: output is not an existing directory',
-              file=sys.stderr)
+        _perror('output "{}" is not an existing directory'.format(args.output))
         sys.exit(1)
 
     return args
 
 
 def _print_summary(src, output, muz_files, meta_files):
-    print('source: {}'.format(os.path.abspath(src)))
-    print('output: {}'.format(os.path.abspath(output)))
-    print('')
+    print('{} {}'.format(colored('source:', 'blue'),
+                         colored(os.path.abspath(src), 'blue', attrs=['bold'])))
+    print('{} {}'.format(colored('output:', 'blue'),
+                         colored(os.path.abspath(output),
+                                 'blue', attrs=['bold'])))
 
     if not muz_files:
-        print('no music files')
+        _pwarning('no music files found')
     else:
-        print('music files:')
+        print()
+        _pinfo('music files:')
 
         for file in muz_files:
             print('  {}'.format(os.path.basename(file)))
 
-    print('')
+    print()
 
     if not meta_files:
-        print('no meta files')
+        _pinfo('no meta files')
     else:
-        print('meta files:')
+        _pinfo('meta files:')
 
         for file in meta_files:
             print('  {}'.format(os.path.basename(file)))
@@ -165,102 +183,118 @@ def _guess_infos(muz_files):
     return artist, album, year
 
 
+def _pcp(src, dst):
+    msg = '[{}]    "{}" {} "{}"'.format(colored('cp', attrs=['bold']), src,
+                                        colored('->', attrs=['bold']), dst)
+    print(msg)
+
+
+def _pmkdir(dst):
+    print('[{}] "{}"'.format(colored('mkdir', attrs=['bold']), dst))
+
+
 def do_sortmuz(src, output):
     muz_files, meta_files = _collect_files(src)
 
     _print_summary(src, output, muz_files, meta_files)
-    print('\n---\n')
+    print(colored('\n---\n', 'blue'))
 
     artist, album, year = _guess_infos(muz_files)
 
     while True:
-        user_artist = input('artist? [{}] '.format(artist))
-        user_album = input('album? [{}] '.format(album))
-        user_year = input('year? [{}] '.format(year))
-        user_confirm = input('confirm? [y] ')
+        uartist = input('{}  [{}] '.format(colored('artist?', 'green',
+                                                   attrs=['bold']),
+                                           colored(artist, attrs=['bold'])))
+        ualbum = input('{}   [{}] '.format(colored('album?', 'green',
+                                                  attrs=['bold']),
+                                           colored(album, attrs=['bold'])))
+        uyear = input('{}    [{}] '.format(colored('year?', 'green',
+                                                 attrs=['bold']),
+                                           colored(year, attrs=['bold'])))
+        uconfirm = input('{} [{}] '.format(colored('confirm?', 'cyan',
+                                                    attrs=['bold']),
+                                           colored('y', attrs=['bold'])))
 
-        if len(user_confirm) == 0 or user_confirm.lower() == 'y':
+        if len(uconfirm) == 0 or uconfirm.lower() == 'y':
             break
 
-        print('')
+        print()
 
-    user_artist = user_artist.strip()
-    user_album = user_album.strip()
-    user_year = user_year.strip()
+    uartist = uartist.strip()
+    ualbum = ualbum.strip()
+    uyear = uyear.strip()
 
-    if len(user_artist.strip()) == 0:
-        user_artist = artist
+    if len(uartist.strip()) == 0:
+        uartist = artist
 
-    if len(user_album.strip()) == 0:
-        user_album = album
+    if len(ualbum.strip()) == 0:
+        ualbum = album
 
-    if len(user_year.strip()) == 0:
-        user_year = year
+    if len(uyear.strip()) == 0:
+        uyear = year
 
-    if len(user_artist) == 0:
-        print('error: invalid artist name', file=sys.stderr)
-        sys.exit(1)
+    if len(uartist) == 0:
+        _perror('empty artist name')
 
-    if len(user_album) == 0:
-        print('error: invalid album name', file=sys.stderr)
-        sys.exit(1)
+    if len(ualbum) == 0:
+        _perror('empty album name')
 
-    if len(user_year) == 0:
-        print('error: invalid year', file=sys.stderr)
-        sys.exit(1)
+    if len(uyear) == 0:
+        _perror('empty year')
 
-    year_album = '{} {}'.format(user_year, user_album)
-    album_dir = os.path.join(output, user_artist, year_album)
+    year_album = '{} {}'.format(uyear, ualbum)
+    album_dir = os.path.join(output, uartist, year_album)
     abs_album_dir = os.path.abspath(album_dir)
 
     if os.path.isdir(album_dir):
-        res = input('overwrite "{}"? [y] '.format(abs_album_dir))
+        res = input('{} {} [{}] '.format(colored('overwrite', 'cyan',
+                                                 attrs=['bold']),
+                                         colored(abs_album_dir, 'blue',
+                                                 attrs=['bold']),
+                                         colored('n', attrs=['bold'])))
 
-        if len(res) != 0 and res.lower() != 'y':
+        if res.lower() != 'y':
             sys.exit(0)
 
-        print('')
+        print()
+        print('[{}]    "{}"'.format(colored('rm', attrs=['bold']),
+                                    abs_album_dir))
 
-        print('[rm]    "{}"'.format(abs_album_dir))
-        shutil.rmtree(album_dir)
+        try:
+            shutil.rmtree(album_dir)
+        except Exception as e:
+            _perror('cannot remove directory "{}": {}'.format(album_dir, e))
     else:
-        print('')
+        print()
 
-    print('[mkdir] "{}"'.format(abs_album_dir))
+    _pmkdir(abs_album_dir)
 
     try:
         os.makedirs(album_dir)
     except Exception as e:
-        print('error: cannot create directory: ' + str(e), file=sys.stderr)
-        sys.exit(1)
+        _perror('cannot create directory "{}": {}'.format(album_dir, e))
 
     for file in muz_files:
         dst = os.path.join(abs_album_dir, os.path.basename(file))
-        msg = '[cp]    "{}" -> "{}"'.format(file, dst)
-
-        print(msg)
+        _pcp(file, dst)
 
         try:
             shutil.copyfile(file, dst)
         except Exception as e:
-            print('error: cannot copy file: ' + str(e), file=sys.stderr)
-            sys.exit(1)
+            _perror('cannot cannot copy file "{}": {}'.format(file, e))
 
     if meta_files:
         meta_dir = os.path.join(abs_album_dir, '_')
-        print('[mkdir] "{}"'.format(meta_dir))
+        _pmkdir(meta_dir)
 
         try:
             os.makedirs(meta_dir)
         except Exception as e:
-            print('error: cannot create directory: ' + str(e), file=sys.stderr)
-            sys.exit(1)
+            _perror('cannot create directory "{}": {}'.format(meta_dir, e))
 
         for file in meta_files:
             dst = os.path.join(meta_dir, os.path.basename(file))
-            msg = '[cp]    "{}" -> "{}"'.format(file, dst)
-
-            print(msg)
+            _pcp(file, dst)
 
             try:
                 if os.path.isdir(file):
@@ -268,9 +302,8 @@ def do_sortmuz(src, output):
                 else:
                     shutil.copyfile(file, dst)
             except Exception as e:
-                print('error: cannot copy file/directory: ' + str(e),
-                      file=sys.stderr)
-                sys.exit(1)
+                fmt = 'cannot cannot copy file/directory "{}": {}'
+                _perror(fmt.format(file, e))
 
 
 def run():

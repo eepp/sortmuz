@@ -43,7 +43,8 @@ packages = [
 ]
 
 install_requires = [
-    'mutagenx>=1.24'
+    'mutagenx>=1.24',
+    'termcolor',
 ]
 
 import sortmuz
