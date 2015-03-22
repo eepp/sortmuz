@@ -7,8 +7,7 @@ Interactive command line utility to sort downloaded music albums.
 installing
 ----------
 
-Make sure you have Python 3 and
-[setuptools](https://pypi.python.org/pypi/setuptools).
+Make sure you have Python 3.
 
 Install using pip (`python3-pip` Ubuntu package):
 
