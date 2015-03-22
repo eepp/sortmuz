@@ -10,31 +10,46 @@ installing
 Make sure you have Python 3 and
 [setuptools](https://pypi.python.org/pypi/setuptools).
 
-Clone using Git and run `setup.py`:
+Install using pip (`python3-pip` Ubuntu package):
 
-    git clone https://github.com/eepp/sortmuz.git
-    cd sortmuz
-    sudo python3 setup.py install
+    sudo pip3 install sortmuz
+
+
+wordup?
+-------
+
+sortmuz scans a downloaded music album directory and tries to guess the
+appropriate artist name, album name, and year. It asks you to possibly
+modify those three values, after which it "installs" the album to a
+destination collection directory.
+
+The artist name, album name, and year information is only used for
+naming the destination directories, i.e. sortmuz does not alter tags.
+
+The collection directory has the following layout:
+
+    collection/
+      aKido/
+        2005 Playtime/
+          _/
+            <copied meta files here; everything not music>
+          <copied music files here>
+        2007 Blink/
+          _/
+            ...
+          ...
+      BADBADNOTGOOD/
+        ...
+      King Crimson/
+        ...
+      ...
+
+sortmuz currently supports `.mp3`, `.flac`, and `.m4a` files.
 
 
 using
 -----
 
-The purpose of sortmuz is to take a music album directory, usually filled
-with MP3/M4A/FLAC and some metadata files (album cover, log/cue files,
-etc.), and sort it in another music collection directory following
-this format:
-
-    root of collection/
-      <artist>/
-        <release year> <album>/
-          _/
-            <meta files>
-          <music files>
-
-It interactively asks the user to confirm/modify the guessed artist
-name, album name and album release year from audio files tags.
-
-More info:
+See
 
     sortmuz --help
