@@ -46,6 +46,8 @@ The collection directory has the following layout:
 
 sortmuz currently supports `.mp3`, `.flac`, and `.m4a` files.
 
+See sortmuz in action [here](https://asciinema.org/a/17925).
+
 
 using
 -----
